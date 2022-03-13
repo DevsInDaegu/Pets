@@ -1,11 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Home from './Home';
+import { BrowserRouter as Router } from 'react-router-dom';
 import reportWebVitals from './reportWebVitals';
+import PageRouter from './pageRouter';
 
 ReactDOM.render(
   <React.StrictMode>
-    <Home />
+    < Router >
+      <PageRouter />
+    </Router>
   </React.StrictMode>,
   document.getElementById('root')
 );

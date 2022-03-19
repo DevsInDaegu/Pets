@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import logo from '../Resources/logo.svg';
-import petFetcher from '../Model/petFetcher'
+import PetFetcher from '../Model/petFetcher'
+import Navbar from '../Component/Navbar'
 
-function Home() {
-
+function Home({petFetcher}) {
+  
   const DEFULT_DAYS_TO_FIND = 10
   const [areas, setAreas] = useState([])
   const [showingArea, showArea] = useState(null)
@@ -24,40 +24,49 @@ function Home() {
       end: now
     }
   }
-  
+
   function didAppear() {
-    petFetcher.onAreasChange = setAreas
-    petFetcher.subscribe()
-    petFetcher.fetchAreas()
+    setAreas(petFetcher.areas)
   }
 
-  useEffect(didAppear, [])
+  useEffect(() => {
+    didAppear()
+    return () => {
+      petFetcher.onAreasChange = PetFetcher.onAreasChangePlaceHolder
+    }
+  }, [])
 
   function createAreaButton(area) {
-    return <button key={area.code} 
+    return <button key={area.code}
       onClick={() => clickAreaButton(area)}
       style={{
-        color: area.code === showingArea?.code ? "blue": null
+        color: area.code === showingArea?.code ? "blue" : null
       }}>
-        {area.name}
-      </button>
+      {area.name}
+    </button>
   }
 
   async function clickAreaButton(area) {
-    if (showingArea !== null && area === showingArea.area ) {
+    if (showingArea !== null && area === showingArea.area) {
       return
     }
-    const fetched = await petFetcher.getCitiesIn(area)
-    showArea(fetched)
+    showCity(null)
+    setShelter(null)
+    const cities = petFetcher.getCitiesIn(area)
+    showArea({
+      area,
+      cities
+    })
+    cities.cities.forEach(petFetcher.fetchSheltersInIfNeeded.bind(petFetcher))
   }
 
   function drawCityButtons() {
-    if(showingArea === null) {
+    if (showingArea === null) {
       return null
     }
-    else if(showingArea.cities.length !== 0) {
+    else if (showingArea.cities.length !== 0) {
       return showingArea.cities.map(createCityButton)
-    }else {
+    } else {
       return <p>Empty</p>
     }
   }
@@ -65,11 +74,11 @@ function Home() {
   function createCityButton(city) {
 
     return <button key={city.code}
-     onClick = {() => clickCityButton(city)}
-     style = {{
-       color: city.code === showingCity?.code ? "blue": null
-     }}
-     > {city.name} </button>
+      onClick={() => clickCityButton(city)}
+      style={{
+        color: city.code === showingCity?.code ? "blue" : null
+      }}
+    > {city.name} </button>
   }
 
   async function clickCityButton(city) {
@@ -95,11 +104,11 @@ function Home() {
 
   function drawShelterLabel(shelter) {
     return <li key={shelter.registeredNumber}>
-      <button 
-      onClick ={() => setShelter(shelter)}
-      style = {{
-        color: shelter.registeredNumber === selectedShelter?.registeredNumber ? "blue": null
-      }}
+      <button
+        onClick={() => setShelter(shelter)}
+        style={{
+          color: shelter.registeredNumber === selectedShelter?.registeredNumber ? "blue" : null
+        }}
       > {shelter.name} </button>
     </li>
   }
@@ -108,11 +117,11 @@ function Home() {
     const allFamilyKeys = Object.keys(petFetcher.petFamilies)
     return <select onChange={onSelectFamilyChange}>
       <option value={""}>종류를 선택해주세요</option>
-      {allFamilyKeys.map(key => 
+      {allFamilyKeys.map(key =>
         <option key={key} value={key}>
-        {petFetcher.petFamilies[key]}
+          {petFetcher.petFamilies[key]}
         </option>
-       )}
+      )}
     </select>
   }
 
@@ -120,7 +129,7 @@ function Home() {
     selectSpecies(null)
     const familyName = event.target.value
 
-    if(familyName.length === 0){
+    if (familyName.length === 0) {
       showFamily(null)
     }
     else {
@@ -130,10 +139,10 @@ function Home() {
   }
 
   function drawSelectSpecies() {
-    if(showingFamily === null) {
+    if (showingFamily === null) {
       return null
     }
-   
+
     return <select onChange={onSelectSpecies}>
       <option value="">모든 품종</option>
       {showingFamily.species.map((species) =>
@@ -158,7 +167,7 @@ function Home() {
       <input type="number"
         value={daysToFind}
         onChange={(event) => {
-          if(event.target.value > 0 && event.target.value < 1000) {
+          if (event.target.value > 0 && event.target.value < 1000) {
             setDaysToFind(event.target.value)
           }
         }}></input>
@@ -174,7 +183,7 @@ function Home() {
   async function callAPI() {
     const periodToFind = createPeriodDuringDays(daysToFind)
 
-    const fetched = await petFetcher.fetchAbandonmentPets({
+    const fetched = await petFetcher.fetchAbandonedPets({
       period: periodToFind,
       shelter: selectedShelter,
       city: showingCity,
@@ -189,29 +198,26 @@ function Home() {
     if (petsToShow === null) {
       return null
     }
-    return  petsToShow.map(pet =>  
+    return petsToShow.map(pet =>
       <pre key={pet.desertionNo}
-      style = {{
-        overflow: "auto",
-        whiteSpace: "pre-wrap"
-      }}
-       >{JSON.stringify(pet)}</pre>
+        style={{
+          overflow: "auto",
+          whiteSpace: "pre-wrap"
+        }}
+      >{JSON.stringify(pet)}</pre>
     )
   }
-  
-  return (
+
+  return <>
+    <Navbar />
     <motion.div className="Home"
-      exit={{ opacity: 0 }}
+      exit={{ opacity: 0.5 }}
       animate={{ opacity: 1 }}
       initial={{ opacity: 0 }}
       transition={{
-        duration: 0.5,
+        duration: 0.3,
         ease: "easeIn"
       }}>
-      <img src={logo} style={{
-        width: "200px",
-        height: "200px"
-      }}></img>
       {drawSelectFamily()}
       {drawSelectSpecies()}
       <div>{areas.map(createAreaButton)}</div>
@@ -221,7 +227,7 @@ function Home() {
       {drawCallApiButton()}
       {showPetsIfneeded()}
     </motion.div>
-  );
+  </>
 }
 
 export default Home;

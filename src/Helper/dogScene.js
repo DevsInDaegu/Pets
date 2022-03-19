@@ -86,7 +86,7 @@ export default class DogScene {
   }
 
   updatePlaytime(playTime) {
-    if (this.spotLight == undefined) {
+    if (this.spotLight === undefined) {
       this.setSpotLight()
     }
     this.playTime = playTime

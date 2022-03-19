@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Box, Typography } from '@mui/material'
 import { motion } from 'framer-motion'
 import DogScene from '../Helper/dogScene'
 
@@ -44,7 +45,7 @@ function Intro() {
         dogScene.current.updatePlaytime(window.scrollY * 0.01)
 
         if (!movingNextPage, window.scrollY > TRIGGER_NEXT_HEIGHT) {
-            navigation('./home')
+            navigation('./searchmap')
             setMoving(true)
         }
     }
@@ -67,22 +68,22 @@ function Intro() {
     function drawIntroMessages() {
         return <>
             <h5 style={{
-                textAlign: 'start',
-                fontSize: '2rem',
+                textAlign: 'center',
+                fontSize: '1.5rem',
                 marginBottom: "10em"
             }}>스크롤을 아래로 내리세요</h5>
             {quotes.map((quote) => {
-                return <motion.p 
-                    key={quote} 
+                return <motion.div
+                    key={quote}
                     onViewportEnter={(event) => {
                         quotesOffsetMap.current.set(event.target.offsetTop, quote)
                         setQuoteToHighlight()
                     }}
                     onViewportLeave={setQuoteToHighlight}
                     animate={{
-                        opacity: quote === highlightedQuote ? 1: 0.2,
-                        scale: quote === highlightedQuote ? 1.2: 1,
-                        x: quote === highlightedQuote ? "0%": "15%",
+                        opacity: quote === highlightedQuote ? 1 : 0.2,
+                        scale: quote === highlightedQuote ? 1.2 : 1,
+                        x: quote === highlightedQuote ? "0%" : "15%",
                     }}
                     transition={{
                         duration: 0.5,
@@ -91,17 +92,28 @@ function Intro() {
                     }}
                     style={{
                         textAlign: 'end',
-                        color: "white",
-                    }}>{quote}</motion.p>
+                        fontSize: "1rem",
+
+                        display: "inline"
+                    }}>
+                    <Box sx={{
+                        borderBottom: 1,
+                        width: '100%',
+                    }}>
+                        <Typography>
+                            {quote}
+                        </Typography>
+                    </Box>
+                </motion.div>
             })}
-            <h1
+            <Typography color="primary" variant="h2"
                 style={{
                     paddingLeft: "10vw",
-                    fontFamily: 'Courier New',
                     fontWeight: 'bolder',
-                    fontSize: '5em'
+                    fontFamily: 'Courier New',
+                    fontSize: '3.5em',
                 }}
-            >Pets</h1></>
+            >Save Pets</Typography></>
     }
 
     function setQuoteToHighlight() {
@@ -131,7 +143,6 @@ function Intro() {
             style={{
                 position: 'sticky',
                 top: '0',
-                left: '0',
                 borderRadius: 10,
                 zIndex: 2
             }}
@@ -157,16 +168,13 @@ function Intro() {
         <div style={{
             position: "absolute",
             top: "10vh",
-            width: "80vw",
-            marginLeft: '5vw',
+            right: "10%",
             height: MESSAGES_HEIGHT,
             color: 'white',
-            fontSize: '1.5rem',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
             fontFamily: 'Noto Sans KR, sans-serif',
-            textAlign: 'end',
             zIndex: 1
         }}>
             { playYoutubeBGM() }
@@ -184,7 +192,6 @@ function Intro() {
             display: 'hidden',
         }}
         >
-            {/* { playYoutubeBGM() } */}
         </div>
     </motion.div>
 }

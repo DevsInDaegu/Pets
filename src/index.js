@@ -1,15 +1,19 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter as Router } from 'react-router-dom';
+import { ThemeProvider } from '@mui/material/styles'
 import reportWebVitals from './reportWebVitals';
 import PageRouter from './pageRouter';
+import {appTheme} from './Resources/theme'
 
 ReactDOM.render(
-  <React.StrictMode>
-    < Router >
-      <PageRouter />
-    </Router>
-  </React.StrictMode>,
+  <ThemeProvider theme={appTheme}>
+    <React.StrictMode>
+      <Router >
+        <PageRouter />
+      </Router>
+    </React.StrictMode>
+  </ThemeProvider>,
   document.getElementById('root')
 );
 

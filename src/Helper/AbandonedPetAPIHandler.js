@@ -1,16 +1,15 @@
-import petFetcher from "../Model/petFetcher"
 
-
-class APIHandler {
+class AbandonedPetAPIHandler {
     static config = {
-        endpoint: "http://apis.data.go.kr/1543061/abandonmentPublicSrvc/",
+        endpoint: "http://apis.data.go.kr/1543061/",
+        
         encodedServiceKey: "%2Fsa3Ats%2FIoFo0APLYtHSWMVGsojvVd2xJrPIsKa%2FoAplK6r%2F1aKk11956DuL0Uzvt3wWIk2F3qVxBq3knoIxbQ%3D%3D",
         decodedServiceKey: "/sa3Ats/IoFo0APLYtHSWMVGsojvVd2xJrPIsKa/oAplK6r/1aKk11956DuL0Uzvt3wWIk2F3qVxBq3knoIxbQ=="
     }
 
     static createAreaReqURL(returnType = "json", numberOfAreas = 20) {
         this.checkReturnType(returnType)
-        let path = "sido"
+        let path = "abandonmentPublicSrvc/sido"
         path += `?serviceKey=${this.config.encodedServiceKey}`
         path += `&numOfRow=${numberOfAreas}`
         path += `&pageNo=${1}`
@@ -19,9 +18,20 @@ class APIHandler {
             this.config.endpoint)
     }
 
+    static createShelterDetailReqURL(shelter, returnType = "json") {
+        this.checkReturnType(returnType)
+        let path = "animalShelterSrvc/shelterInfo"
+        path += `?serviceKey=${this.config.encodedServiceKey}`
+        path += `&care_reg_no=${shelter.registeredNumber}`
+        path += `&numOfRos=1`
+        path += "&pageNo=1"
+        path += "&_type=json"
+        return new URL(path, this.config.endpoint)
+    }
+
     static createCityReqURL(area, returnType = "json") {
         this.checkReturnType(returnType)
-        let path = "sigungu"
+        let path = "abandonmentPublicSrvc/sigungu"
         path += `?serviceKey=${this.config.encodedServiceKey}`
         path += `&upr_cd=${area.code}`
         path += `&_type=${returnType}`
@@ -30,7 +40,7 @@ class APIHandler {
 
     static createShelterReqURL(city, returnType = "json") {
         this.checkReturnType(returnType)
-        let path = "shelter"
+        let path = "abandonmentPublicSrvc/shelter"
         path += `?serviceKey=${this.config.encodedServiceKey}`
         path += `&upr_cd=${city.areaCode}`
         path += `&org_cd=${city.code}`
@@ -41,7 +51,7 @@ class APIHandler {
     static createSpeciesReqURL(family, returnType = "json") {
         this.checkReturnType(returnType)
         const familyCode = this.getFamilyCodeFor(family)
-        let path = "kind"
+        let path = "abandonmentPublicSrvc/kind"
         path += `?serviceKey=${this.config.encodedServiceKey}`
         path += `&up_kind_cd=${familyCode}`
         path += `&_type=${returnType}`
@@ -65,7 +75,7 @@ class APIHandler {
         this.checkReturnType(returnConfig.type)
         const startDateString = this.convertDateToString(period.start)
         const endDateString = this.convertDateToString(period.end)
-        let path = 'abandonmentPublic'
+        let path = 'abandonmentPublicSrvc/abandonmentPublic'
 
         path += `?bgnde=${startDateString}`
         path += `&endde=${endDateString}`
@@ -104,4 +114,4 @@ class APIHandler {
     }
 }
 
-export default APIHandler
+export default AbandonedPetAPIHandler
